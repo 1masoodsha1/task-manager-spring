@@ -1,71 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import './styles.css';
-import type { Task, TaskCreateOrUpdate } from './types';
-import { fetchTasks, createTask, updateTask, deleteTask } from './api';
-import TaskForm from './components/TaskForm';
-import TaskList from './components/TaskList';
+import { useEffect, useState } from 'react';
+import './index.css';
+import TaskForm from './components/TaskForm/TaskForm';
+import TaskList from './components/TaskList/TaskList';
+import type { Task, TaskCreateOrUpdate } from './models/task';
+import { taskService } from './services/taskService';
 
-const App: React.FC = () => {
+export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadTasks = async () => {
+  async function loadTasks(): Promise<void> {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchTasks();
+      const data = await taskService.getTasks();
       setTasks(data);
-    } catch (err: any) {
-      setError(err?.message ?? 'Failed to load tasks');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load tasks');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     void loadTasks();
   }, []);
 
-  const handleCreateOrUpdate = async (taskInput: TaskCreateOrUpdate) => {
+  async function handleCreateOrUpdate(taskInput: TaskCreateOrUpdate): Promise<void> {
     setError(null);
+
     try {
       if (editingTask) {
-        const updated = await updateTask(editingTask.id, taskInput);
-        setTasks((prev) =>
-          prev.map((t) => (t.id === updated.id ? updated : t)),
-        );
+        const updated = await taskService.updateTask(editingTask.id, taskInput);
+        setTasks((current) => current.map((task) => (task.id === updated.id ? updated : task)));
         setEditingTask(null);
       } else {
-        const created = await createTask(taskInput);
-        setTasks((prev) => [...prev, created]);
+        const created = await taskService.createTask(taskInput);
+        setTasks((current) => [...current, created]);
       }
-    } catch (err: any) {
-      setError(err?.message ?? 'Failed to save task');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save task');
     }
-  };
+  }
 
-  const handleDelete = async (id: number) => {
+  async function handleDelete(id: number): Promise<void> {
     setError(null);
+
     try {
-      await deleteTask(id);
-      setTasks((prev) => prev.filter((t) => t.id !== id));
-      if (editingTask && editingTask.id === id) {
-        setEditingTask(null);
-      }
-    } catch (err: any) {
-      setError(err?.message ?? 'Failed to delete task');
+      await taskService.deleteTask(id);
+      setTasks((current) => current.filter((task) => task.id !== id));
+      setEditingTask((current) => (current?.id === id ? null : current));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete task');
     }
-  };
+  }
 
   return (
     <div className="page">
       <header className="page-header">
         <h1>Task Manager</h1>
-        <p className="subtitle">
-          Manage tasks: create, view, update, and delete them.
-        </p>
+        <p className="subtitle">Manage tasks.</p>
       </header>
 
       <main className="layout">
@@ -73,8 +70,9 @@ const App: React.FC = () => {
           <TaskForm
             initialTask={editingTask}
             onSubmit={handleCreateOrUpdate}
-            onCancelEdit={() => setEditingTask(null)}
+            onCancel={() => setEditingTask(null)}
           />
+
           {error && <div className="alert alert-error">{error}</div>}
         </div>
 
@@ -83,13 +81,15 @@ const App: React.FC = () => {
             tasks={tasks}
             loading={loading}
             onEdit={setEditingTask}
-            onDelete={handleDelete}
-            onRefresh={loadTasks}
+            onDelete={(id) => {
+              void handleDelete(id);
+            }}
+            onRefresh={() => {
+              void loadTasks();
+            }}
           />
         </div>
       </main>
     </div>
   );
-};
-
-export default App;
+}

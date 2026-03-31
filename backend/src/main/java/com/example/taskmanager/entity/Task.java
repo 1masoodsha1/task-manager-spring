@@ -1,7 +1,12 @@
 package com.example.taskmanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "tasks")
@@ -11,22 +16,24 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
+    @Size(max = 255, message = "Title must be 255 characters or fewer")
     @Column(nullable = false)
     private String title;
 
     @Column(length = 1000)
     private String description;
 
+    @NotNull(message = "Invalid status")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskStatus status = TaskStatus.TODO;
 
-    private LocalDate dueDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Instant dueDate;
 
     public Task() {
     }
-
-    // --- getters & setters ---
 
     public Long getId() {
         return id;
@@ -60,11 +67,11 @@ public class Task {
         this.status = status;
     }
 
-    public LocalDate getDueDate() {
+    public Instant getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(Instant dueDate) {
         this.dueDate = dueDate;
     }
 }

@@ -2,6 +2,8 @@ package com.example.taskmanager.controller;
 
 import com.example.taskmanager.entity.Task;
 import com.example.taskmanager.service.TaskService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = "http://localhost:5173") // adjust if needed
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+})
 public class TaskController {
 
     private final TaskService taskService;
@@ -18,27 +23,28 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public List<Task> getAll() {
         return taskService.getAllTasks();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/{id}/"})
     public Task getById(@PathVariable Long id) {
         return taskService.getTask(id);
     }
 
-    @PostMapping
-    public Task create(@RequestBody Task task) {
+    @PostMapping({"", "/"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public Task create(@Valid @RequestBody Task task) {
         return taskService.createTask(task);
     }
 
-    @PutMapping("/{id}")
-    public Task update(@PathVariable Long id, @RequestBody Task task) {
+    @PutMapping({"/{id}", "/{id}/"})
+    public Task update(@PathVariable Long id, @Valid @RequestBody Task task) {
         return taskService.updateTask(id, task);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping({"/{id}", "/{id}/"})
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();

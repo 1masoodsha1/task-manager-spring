@@ -99,7 +99,7 @@ GET /api/tasks
 Returns a list of all tasks.
 
 GET /api/tasks/{id}
-Returns a single task by its ID (or 404 if not found).
+Returns a single task by its ID.
 
 POST /api/tasks
 Creates a new task from the JSON payload and returns the created task.

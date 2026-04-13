@@ -33,12 +33,12 @@
   resize: vertical;
 }
 
-.task-form-buttons {
+.buttons {
   display: flex;
   gap: 8px;
 }
 
-.task-form button {
+.buttons button {
   padding: 8px 12px;
   border: 1px solid #bbb;
   background: #f3f3f3;
@@ -46,16 +46,16 @@
   cursor: pointer;
 }
 
-.task-form button:hover {
+.buttons button:hover {
   background: #e9e9e9;
 }
 
-.task-form button:disabled {
+.buttons button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.task-form-error {
+.error {
   color: #c00;
-  padding: 8px 0;
+  padding: 8px 0 0;
 }

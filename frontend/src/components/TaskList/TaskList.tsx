@@ -1,5 +1,5 @@
 import './TaskList.css';
-import type { Task } from '../models/task';
+import type { Task } from '../../models/task';
 
 interface TaskListProps {
   tasks: Task[];
@@ -43,7 +43,9 @@ export default function TaskList({
                   <strong>{task.title}</strong>
                   <div className="task-list-meta">
                     <span>{task.status}</span>
-                    {isOverdue(task) && <span className="task-list-overdue"> • OVERDUE</span>}
+                    {isOverdue(task) && (
+                      <span className="task-list-overdue"> • OVERDUE</span>
+                    )}
                     {task.dueDate && (
                       <span> • due {new Date(task.dueDate).toLocaleString()}</span>
                     )}

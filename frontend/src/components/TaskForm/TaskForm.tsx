@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Task, TaskCreateOrUpdate, TaskStatus } from '../models/task';
+import './TaskForm.css';
+import type { Task, TaskCreateOrUpdate, TaskStatus } from '../../models/task';
 
 type Props = {
   initialTask: Task | null;
@@ -30,7 +31,10 @@ export default function TaskForm({ initialTask, onSubmit, onCancel }: Props) {
   }, [initialTask]);
 
   const hasBlankTitleError = useMemo(() => !title.trim(), [title]);
-  const hasTitleTooLongError = useMemo(() => title.length > TITLE_MAX_LENGTH, [title]);
+  const hasTitleTooLongError = useMemo(
+    () => title.length > TITLE_MAX_LENGTH,
+    [title],
+  );
 
   const hasPastDueDateError = useMemo(() => {
     if (!dueDate || status === 'DONE') return false;
@@ -45,7 +49,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel }: Props) {
 
     onSubmit({
       title: cleanTitle,
-      description: description.trim() ? description : null,
+      description: description.trim() ? description.trim() : null,
       status,
       dueDate: dueDate ? new Date(dueDate).toISOString() : null,
     });
@@ -114,7 +118,12 @@ export default function TaskForm({ initialTask, onSubmit, onCancel }: Props) {
       </div>
 
       <div className="buttons">
-        <button type="submit" disabled={hasBlankTitleError || hasTitleTooLongError || hasPastDueDateError}>
+        <button
+          type="submit"
+          disabled={
+            hasBlankTitleError || hasTitleTooLongError || hasPastDueDateError
+          }
+        >
           Save
         </button>
         <button type="button" onClick={onCancel}>
